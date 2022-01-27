@@ -122,6 +122,7 @@ class Repository:
             os.makedirs(ocid_directory, exist_ok=True)
             data = {
                 "ocid": ocid,
+                "record_url": url + "/contracting_process/" + ocid + "/record.json",
                 "releases": [
                     {
                         "release_package_url": url
