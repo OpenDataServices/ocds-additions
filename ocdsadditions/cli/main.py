@@ -51,6 +51,14 @@ def createreleasespreadsheet_command(
     release.create_spreadsheets(spreadsheetfilename)
 
 
+@click.command("importspreadsheet")
+@click.argument("spreadsheetfilename")
+def importspreadsheet_command(spreadsheetfilename: str):
+    click.echo("Import Spreadsheet")
+    repo = Repository(getcwd())
+    repo.import_spreadsheet(spreadsheetfilename)
+
+
 @click.command("buildsite")
 @click.argument("output_directory")
 @click.option("-u", "--url", "url")
@@ -64,6 +72,7 @@ cli.add_command(addocid_command)
 cli.add_command(addexternalreleasepackage_command)
 cli.add_command(addemptyrelease_command)
 cli.add_command(createreleasespreadsheet_command)
+cli.add_command(importspreadsheet_command)
 cli.add_command(buildsite_command)
 
 if __name__ == "__main__":

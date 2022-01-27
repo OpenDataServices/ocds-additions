@@ -8,7 +8,7 @@ import dateutil.parser
 import ocdskit.combine  # type: ignore
 import ocdskit.util  # type: ignore
 import requests
-from flattentool import flatten  # type: ignore
+from flattentool import flatten, unflatten  # type: ignore
 from jinja2 import Environment, PackageLoader, select_autoescape
 
 from ocdsadditions.constants import LATEST_OCDS_SCHEMA_VERSION
@@ -87,6 +87,42 @@ class Repository:
                 data = json.load(fp)
                 out.append(data["ocid"])
         return out
+
+    def import_spreadsheet(self, import_filename: str):
+        # Make sure filename & type is valid
+        import_format: str = ""
+        if import_filename.endswith(".xlsx"):
+            import_format = "xlsx"
+        elif import_filename.endswith(".ods"):
+            import_format = "ods"
+        else:
+            raise Exception("Unknown import type")
+
+        # Make release package
+        output_temp_file = tempfile.mkstemp(suffix=".json", prefix="ocds-additions")
+        os.close(output_temp_file[0])
+
+        # Get JSON
+        unflatten(
+            import_filename,
+            input_format=import_format,
+            output_name=output_temp_file[1],
+            root_id="ocid",
+            root_list_path="releases",
+        )
+        with open(output_temp_file[1]) as fp:
+            data = json.load(fp)
+
+        # Process releases
+        if not ocdskit.util.is_release_package(data):
+            raise Exception("Can only import release packages")
+        for release_data in data["releases"]:
+            cp = self.get_contracting_process(release_data.get("ocid"))
+            release = cp.get_release(release_data["id"])
+            release.set_release_data(release_data)
+
+        # Remove temp file
+        os.unlink(output_temp_file[1])
 
     def build_site(self, output_directory: str, url: str = ""):
         os.makedirs(output_directory, exist_ok=True)
@@ -301,6 +337,10 @@ class Release:
             os.path.join(self.release_directory, "ocdsadditions_release.json")
         ):
             raise Exception("Release file not found")
+
+    def set_release_data(self, release_data: dict):
+        with open(os.path.join(self.release_directory, "release.json"), "w") as fp:
+            json.dump(release_data, fp, indent=4)
 
     def get_release_package(self) -> dict:
         with (

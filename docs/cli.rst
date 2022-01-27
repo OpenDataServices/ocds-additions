@@ -71,6 +71,19 @@ You must pass:
 
     ocdsadditions createreleasespreadsheet ocds-h6vhtk-02c615 rel-id-1 output.xlsx
 
+Import Spreadsheet
+~~~~~~~~~~~~~~~~~~
+
+Currently only release package spreadsheets can be imported.
+
+You must pass:
+
+* the filename to import. This must have a '.xlsx' or '.ods' extension.
+
+.. code-block:: bash
+
+    ocdsadditions importspreadsheet spreadsheet.xlsx
+
 Build site
 ~~~~~~~~~~
 
