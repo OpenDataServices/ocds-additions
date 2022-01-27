@@ -7,14 +7,26 @@
         <h2>Record:</h2>
 
         <ul>
-            <li><a href="/contracting_process/{{ ocid }}/record.json">Record with compiled release</a></li>
+            <li>
+                <a href="/contracting_process/{{ ocid }}/record.json">Record with compiled release</a>
+                {% if url %}
+                    {% set drturl = url + "/contracting_process/" + ocid + "/record.json"  %}
+                    [ <a href="https://standard.open-contracting.org/review/?source_url={{ drturl|urlencode }}">Review in Data Review Tool</a> ]
+                {% endif %}
+            </li>
         </ul>
 
         <h2>Releases</h2>
 
         <ul>
             {% for release in releases %}
-                <li><a href="/contracting_process/{{ ocid }}/release/{{ release.directory_name }}/release_package.json">{{ release.directory_name }}</a></li>
+                <li>
+                    <a href="/contracting_process/{{ ocid }}/release/{{ release.directory_name }}/release_package.json">{{ release.directory_name }}</a>
+                    {% if url %}
+                        {% set drturl = url + "/contracting_process/" + ocid + "/release/"+ release.directory_name + "/release_package.json"  %}
+                        [ <a href="https://standard.open-contracting.org/review/?source_url={{ drturl|urlencode }}">Review in Data Review Tool</a> ]
+                    {% endif %}
+                </li>
             {% endfor %}
         </ul>
 

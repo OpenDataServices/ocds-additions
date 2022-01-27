@@ -110,7 +110,7 @@ class Repository:
         with open(os.path.join(output_directory, "index.html"), "w") as fp:
             fp.write(
                 jinja_env.get_template("index.html").render(
-                    repository=self, ocids=ocids
+                    repository=self, ocids=ocids, url=url
                 )
             )
 
@@ -140,7 +140,7 @@ class Repository:
             with open(os.path.join(ocid_directory, "index.html"), "w") as fp:
                 fp.write(
                     jinja_env.get_template("contracting_process/index.html").render(
-                        repository=self, ocid=ocid, releases=releases
+                        repository=self, ocid=ocid, releases=releases, url=url
                     )
                 )
 
