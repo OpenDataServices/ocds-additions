@@ -86,7 +86,7 @@ class Repository:
                 out.append(data["ocid"])
         return out
 
-    def build_site(self, output_directory: str):
+    def build_site(self, output_directory: str, url: str = ""):
         os.makedirs(output_directory, exist_ok=True)
         ocids: list = self.list_ocids()
 
@@ -96,7 +96,14 @@ class Repository:
 
         # Root files
         data = {
-            "ocids": ocids,
+            "ocids": [
+                {
+                    "ocid": ocid,
+                    "human_url": url + "/contracting_process/" + ocid + "/",
+                    "api_url": url + "/contracting_process/" + ocid + "/api.json",
+                }
+                for ocid in ocids
+            ]
         }
         with open(os.path.join(output_directory, "api.json"), "w") as fp:
             json.dump(data, fp, indent=4)
@@ -115,7 +122,17 @@ class Repository:
             os.makedirs(ocid_directory, exist_ok=True)
             data = {
                 "ocid": ocid,
-                "releases": [r.directory_name for r in releases],
+                "releases": [
+                    {
+                        "release_package_url": url
+                        + "/contracting_process/"
+                        + ocid
+                        + "/release/"
+                        + r.directory_name
+                        + "/release_package.json",
+                    }
+                    for r in releases
+                ],
             }
             with open(os.path.join(ocid_directory, "api.json"), "w") as fp:
                 json.dump(data, fp, indent=4)

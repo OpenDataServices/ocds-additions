@@ -39,10 +39,11 @@ def addemptyrelease_command(ocid: str, releaseid: str):
 
 @click.command("buildsite")
 @click.argument("output_directory")
-def buildsite_command(output_directory: str):
+@click.option("-u", "--url", "url")
+def buildsite_command(output_directory: str, url: str):
     click.echo("Building site")
     repo = Repository(getcwd())
-    repo.build_site(output_directory)
+    repo.build_site(output_directory, url=url or "")
 
 
 cli.add_command(addocid_command)
