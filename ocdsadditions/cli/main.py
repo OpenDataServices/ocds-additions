@@ -37,6 +37,20 @@ def addemptyrelease_command(ocid: str, releaseid: str):
     cp.add_empty_release(releaseid)
 
 
+@click.command("createreleasespreadsheet")
+@click.argument("ocid")
+@click.argument("releaseid")
+@click.argument("spreadsheetfilename")
+def createreleasespreadsheet_command(
+    ocid: str, releaseid: str, spreadsheetfilename: str
+):
+    click.echo("Create Release Spreadsheet")
+    repo = Repository(getcwd())
+    cp = repo.get_contracting_process(ocid)
+    release = cp.get_release(releaseid)
+    release.create_spreadsheets(spreadsheetfilename)
+
+
 @click.command("buildsite")
 @click.argument("output_directory")
 @click.option("-u", "--url", "url")
@@ -49,6 +63,7 @@ def buildsite_command(output_directory: str, url: str):
 cli.add_command(addocid_command)
 cli.add_command(addexternalreleasepackage_command)
 cli.add_command(addemptyrelease_command)
+cli.add_command(createreleasespreadsheet_command)
 cli.add_command(buildsite_command)
 
 if __name__ == "__main__":

@@ -2,11 +2,13 @@ import datetime
 import glob
 import json
 import os
+import tempfile
 
 import dateutil.parser
 import ocdskit.combine  # type: ignore
 import ocdskit.util  # type: ignore
 import requests
+from flattentool import flatten  # type: ignore
 from jinja2 import Environment, PackageLoader, select_autoescape
 
 from ocdsadditions.constants import LATEST_OCDS_SCHEMA_VERSION
@@ -272,6 +274,18 @@ class ContractingProcess:
                     return True
         return False
 
+    def get_release(self, release_id: str):
+        for path in glob.glob(
+            os.path.join(
+                self.ocid_directory, "releases", "*", "ocdsadditions_release.json"
+            )
+        ):
+            with (open(path)) as fp:
+                data = json.load(fp)
+                if data["id"] == release_id:
+                    return Release(self, path.split("/")[-2])
+        raise Exception("Release does not exist")
+
 
 class Release:
     def __init__(self, contracting_process: ContractingProcess, directory_name: str):
@@ -312,3 +326,33 @@ class Release:
     def write_release_package(self, filename):
         with open(filename, "w") as fp:
             json.dump(self.get_release_package(), fp, indent=4)
+
+    def create_spreadsheets(self, spreadsheet_filename: str):
+        # Make sure filename & type is valid
+        output_format: str = ""
+        if spreadsheet_filename.endswith(".xlsx"):
+            output_format = "xlsx"
+        elif spreadsheet_filename.endswith(".ods"):
+            output_format = "ods"
+        else:
+            raise Exception("Unknown output type")
+
+        # Make release package
+        rel_package_temp_file = tempfile.mkstemp(
+            suffix=".json", prefix="ocds-additions"
+        )
+        os.close(rel_package_temp_file[0])
+        self.write_release_package(rel_package_temp_file[1])
+
+        # Create!
+        flatten(
+            rel_package_temp_file[1],
+            output_format=output_format,
+            output_name=spreadsheet_filename,
+            root_id="ocid",
+            main_sheet_name="releases",
+            root_list_path="releases",
+        )
+
+        # Remove temp file
+        os.unlink(rel_package_temp_file[1])

@@ -28,6 +28,7 @@ setup(
         "requests",
         "python-dateutil",
         "Jinja2",
+        "flattentool>0.17",
     ],
     extras_require={
         "dev": ["pytest", "black", "isort", "flake8", "mypy"],

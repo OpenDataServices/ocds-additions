@@ -56,6 +56,21 @@ You must pass:
 
     ocdsadditions addemptyrelease ocds-h6vhtk-02c615 rel-id-1
 
+Create Release Spreadsheet
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Turns a single release into a spreadsheet.
+
+You must pass:
+
+* the `Contracting Process Identifier (ocid) <https://standard.open-contracting.org/latest/en/schema/identifiers/#contracting-process-identifier-ocid>`_
+* the `Release ID <https://standard.open-contracting.org/latest/en/schema/identifiers/#release-id>`_
+* the filename to output the spreadsheet to. This must have a '.xlsx' or '.ods' extension.
+
+.. code-block:: bash
+
+    ocdsadditions createreleasespreadsheet ocds-h6vhtk-02c615 rel-id-1 output.xlsx
+
 Build site
 ~~~~~~~~~~
 
