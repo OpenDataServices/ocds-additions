@@ -163,6 +163,7 @@ class Repository:
                 "record_url": url + "/contracting_process/" + ocid + "/record.json",
                 "releases": [
                     {
+                        "id": r.get_id(),
                         "release_package_url": url
                         + "/contracting_process/"
                         + ocid
@@ -337,6 +338,11 @@ class Release:
             os.path.join(self.release_directory, "ocdsadditions_release.json")
         ):
             raise Exception("Release file not found")
+
+    def get_id(self):
+        with (open(os.path.join(self.release_directory, "release.json"))) as fp:
+            data: dict = json.load(fp)
+        return data.get("id")
 
     def set_release_data(self, release_data: dict):
         with open(os.path.join(self.release_directory, "release.json"), "w") as fp:
