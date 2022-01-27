@@ -48,7 +48,7 @@ def createreleasespreadsheet_command(
     repo = Repository(getcwd())
     cp = repo.get_contracting_process(ocid)
     release = cp.get_release(releaseid)
-    release.create_spreadsheets(spreadsheetfilename)
+    release.create_spreadsheet(spreadsheetfilename)
 
 
 @click.command("importspreadsheet")

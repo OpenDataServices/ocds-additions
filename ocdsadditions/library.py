@@ -367,7 +367,7 @@ class Release:
         with open(filename, "w") as fp:
             json.dump(self.get_release_package(), fp, indent=4)
 
-    def create_spreadsheets(self, spreadsheet_filename: str):
+    def create_spreadsheet(self, spreadsheet_filename: str):
         # Make sure filename & type is valid
         output_format: str = ""
         if spreadsheet_filename.endswith(".xlsx"):
