@@ -147,6 +147,7 @@ class Repository:
         return data.get("config", {}).get("package", {})
 
     def build_site(self, output_directory: str, url: str = ""):
+        url_without_trailing_slash = url[:-1] if url.endswith("/") else url
         os.makedirs(output_directory, exist_ok=True)
         ocids: list = self.list_ocids()
 
@@ -159,8 +160,14 @@ class Repository:
             "ocids": [
                 {
                     "ocid": ocid,
-                    "human_url": url + "/contracting_process/" + ocid + "/",
-                    "api_url": url + "/contracting_process/" + ocid + "/api.json",
+                    "human_url": url_without_trailing_slash
+                    + "/contracting_process/"
+                    + ocid
+                    + "/",
+                    "api_url": url_without_trailing_slash
+                    + "/contracting_process/"
+                    + ocid
+                    + "/api.json",
                 }
                 for ocid in ocids
             ],
@@ -173,7 +180,7 @@ class Repository:
                 jinja_env.get_template("index.html").render(
                     repository=self,
                     ocids=ocids,
-                    url=url,
+                    url_without_trailing_slash=url_without_trailing_slash,
                     config_package=self.get_config_package_data(),
                 )
             )
@@ -186,11 +193,14 @@ class Repository:
             os.makedirs(ocid_directory, exist_ok=True)
             data = {
                 "ocid": ocid,
-                "record_url": url + "/contracting_process/" + ocid + "/record.json",
+                "record_url": url_without_trailing_slash
+                + "/contracting_process/"
+                + ocid
+                + "/record.json",
                 "releases": [
                     {
                         "id": r.get_id(),
-                        "release_package_url": url
+                        "release_package_url": url_without_trailing_slash
                         + "/contracting_process/"
                         + ocid
                         + "/release/"
@@ -206,7 +216,10 @@ class Repository:
             with open(os.path.join(ocid_directory, "index.html"), "w") as fp:
                 fp.write(
                     jinja_env.get_template("contracting_process/index.html").render(
-                        repository=self, ocid=ocid, releases=releases, url=url
+                        repository=self,
+                        ocid=ocid,
+                        releases=releases,
+                        url_without_trailing_slash=url_without_trailing_slash,
                     )
                 )
 

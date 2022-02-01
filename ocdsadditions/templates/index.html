@@ -14,14 +14,14 @@
 
         <ul>
             {% for ocid in ocids %}
-                <li><a href="/contracting_process/{{ ocid }}/">{{ ocid }}</a></li>
+                <li><a href="{{ url_without_trailing_slash }}/contracting_process/{{ ocid }}/">{{ ocid }}</a></li>
             {% endfor %}
         </ul>
 
         <h2>API:</h2>
 
         <ul>
-            <li><a href="/api.json">JSON of this page</a></li>
+            <li><a href="{{ url_without_trailing_slash }}/api.json">JSON of this page</a></li>
         </ul>
     </body>
 </html>
