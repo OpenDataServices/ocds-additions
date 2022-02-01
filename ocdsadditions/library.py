@@ -10,6 +10,8 @@ import ocdskit.util  # type: ignore
 import requests
 from flattentool import flatten, unflatten  # type: ignore
 from jinja2 import Environment, PackageLoader, select_autoescape
+from ocdsextensionregistry import ProfileBuilder  # type: ignore
+from ocdskit.util import get_ocds_patch_tag  # type: ignore
 
 from ocdsadditions.constants import LATEST_OCDS_SCHEMA_VERSION
 
@@ -404,6 +406,19 @@ class Release:
         else:
             raise Exception("Unknown output type")
 
+        # Make Schema
+        with (open(os.path.join(self.release_directory, "package.json"))) as fp:
+            package_data = json.load(fp)
+        builder = ProfileBuilder(
+            get_ocds_patch_tag(package_data.get("version", "1.0")),
+            package_data.get("extensions", []),
+        )
+        schema = builder.patched_release_schema()
+        schema_temp_file = tempfile.mkstemp(suffix=".json", prefix="ocds-additions")
+        os.close(schema_temp_file[0])
+        with open(schema_temp_file[1], "w") as fp:
+            json.dump(schema, fp, indent=4)
+
         # Make release package
         rel_package_temp_file = tempfile.mkstemp(
             suffix=".json", prefix="ocds-additions"
@@ -414,6 +429,7 @@ class Release:
         # Create!
         flatten(
             rel_package_temp_file[1],
+            schema=schema_temp_file[1],
             output_format=output_format,
             output_name=spreadsheet_filename,
             root_id="ocid",
@@ -423,3 +439,4 @@ class Release:
 
         # Remove temp file
         os.unlink(rel_package_temp_file[1])
+        os.unlink(schema_temp_file[1])

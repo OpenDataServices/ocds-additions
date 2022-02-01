@@ -23,7 +23,8 @@ setup(
     },
     include_package_data=True,
     install_requires=[
-        "ocdskit>1.0,<=1.1",
+        "ocdskit>=1.0.3,<1.1",
+        "ocdsextensionregistry>=0.1.10,<0.2",
         "click>8,<9",
         "requests",
         "python-dateutil",
