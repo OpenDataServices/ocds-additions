@@ -23,7 +23,20 @@ def init_repository(directory: str):
     if not os.path.isdir(ocids_directory):
         os.makedirs(ocids_directory)
 
-    data: dict = {}
+    data: dict = {
+        "config": {
+            "package": {
+                "publisher": {
+                    "name": "",
+                    "scheme": "",
+                    "uid": "",
+                    "uri": "",
+                },
+                "publicationPolicy": "",
+                "license": "",
+            }
+        }
+    }
 
     with open(os.path.join(directory, "ocdsadditions.json"), "w") as fp:
         json.dump(data, fp, indent=4)
@@ -36,6 +49,8 @@ class Repository:
             raise Exception("Directory does not exist")
         if not os.path.isfile(os.path.join(directory_name, "ocdsadditions.json")):
             raise Exception("Additions file not found")
+        # TODO verify contents of ocdsadditions.json are correct schema?
+        # If done here, no repo with broken config will work which is probably good
 
     def add_ocid(self, ocid):
 
@@ -124,6 +139,11 @@ class Repository:
         # Remove temp file
         os.unlink(output_temp_file[1])
 
+    def get_config_package_data(self):
+        with (open(os.path.join(self.directory_name, "ocdsadditions.json"))) as fp:
+            data = json.load(fp)
+        return data.get("config", {}).get("package", {})
+
     def build_site(self, output_directory: str, url: str = ""):
         os.makedirs(output_directory, exist_ok=True)
         ocids: list = self.list_ocids()
@@ -141,14 +161,18 @@ class Repository:
                     "api_url": url + "/contracting_process/" + ocid + "/api.json",
                 }
                 for ocid in ocids
-            ]
+            ],
+            "package": self.get_config_package_data(),
         }
         with open(os.path.join(output_directory, "api.json"), "w") as fp:
             json.dump(data, fp, indent=4)
         with open(os.path.join(output_directory, "index.html"), "w") as fp:
             fp.write(
                 jinja_env.get_template("index.html").render(
-                    repository=self, ocids=ocids, url=url
+                    repository=self,
+                    ocids=ocids,
+                    url=url,
+                    config_package=self.get_config_package_data(),
                 )
             )
 
@@ -261,17 +285,14 @@ class ContractingProcess:
         }
 
         # TODO add extensions info from existing releases
-        # TODO add publisher info from this repo
         # TODO add uri
+        more_package_data = self.repository.get_config_package_data()
         package_data: dict = {
             "version": LATEST_OCDS_SCHEMA_VERSION,
             "publishedDate": datetime_object.isoformat(),
-            "publisher": {
-                "name": "",
-                "scheme": "",
-                "uid": "",
-                "uri": "",
-            },
+            "publisher": more_package_data.get("publisher", {}),
+            "publicationPolicy": more_package_data.get("publicationPolicy", ""),
+            "license": more_package_data.get("license", ""),
         }
 
         release_data: dict = {

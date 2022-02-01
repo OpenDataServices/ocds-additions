@@ -19,3 +19,5 @@ OCDS Additions
 
    install.rst
    cli.rst
+   repo-config.rst
+
