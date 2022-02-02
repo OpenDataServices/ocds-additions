@@ -347,6 +347,8 @@ class ContractingProcess:
         with open(os.path.join(directory, "release.json"), "w") as fp:
             json.dump(release_data, fp, indent=4)
 
+        return Release(self, dir_name)
+
     def list_releases(self) -> list:
         out: list = []
         for path in glob.glob(
@@ -486,10 +488,16 @@ class Release:
         os.unlink(rel_package_temp_file[1])
         os.unlink(schema_temp_file[1])
 
+    def get_release_data_filename(self) -> str:
+        return os.path.join(self.release_directory, "release.json")
+
     def get_release_data(self) -> dict:
-        with (open(os.path.join(self.release_directory, "release.json"))) as fp:
+        with open(self.get_release_data_filename()) as fp:
             return json.load(fp)
 
+    def get_package_data_filename(self) -> str:
+        return os.path.join(self.release_directory, "package.json")
+
     def get_package_data(self) -> dict:
-        with (open(os.path.join(self.release_directory, "package.json"))) as fp:
+        with open(self.get_package_data_filename()) as fp:
             return json.load(fp)

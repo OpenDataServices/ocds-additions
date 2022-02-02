@@ -34,7 +34,21 @@ def addemptyrelease_command(ocid: str, releaseid: str):
     click.echo("Adding Empty release")
     repo = Repository(getcwd())
     cp = repo.get_contracting_process(ocid)
-    cp.add_empty_release(releaseid)
+    release = cp.add_empty_release(releaseid)
+    click.echo("Edit the package JSON:")
+    click.echo(release.get_package_data_filename())
+    click.echo("Edit the release JSON:")
+    click.echo(release.get_release_data_filename())
+    click.echo("Or create a spreadsheet:")
+    click.echo(
+        "ocdsadditions createreleasespreadsheet "
+        + ocid
+        + " "
+        + releaseid
+        + " spreadsheet.xlsx"
+    )
+    click.echo("You can then edit the spreadsheet and reimport it:")
+    click.echo("ocdsadditions importspreadsheet spreadsheet.xlsx")
 
 
 @click.command("createreleasespreadsheet")
