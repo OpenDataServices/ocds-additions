@@ -349,12 +349,15 @@ class ContractingProcess:
 
     def list_releases(self) -> list:
         out: list = []
-        for path in glob.glob(
+        paths = glob.glob(
             os.path.join(
                 self.ocid_directory, "releases", "*", "ocdsadditions_release.json"
             )
-        ):
-            out.append(Release(self, path.split("/")[-2]))
+        )
+        path_bits = [p.split("/")[-2] for p in paths]
+        path_bits.sort()
+        for path in path_bits:
+            out.append(Release(self, path))
         return out
 
     def does_release_id_exist(self, release_id) -> bool:
