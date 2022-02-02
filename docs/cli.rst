@@ -97,4 +97,4 @@ Pass the output directory.
 
 Option parameters are
 
-* `-u`, `--url`: Specify the base URL the site will be served from - eg "http://localhost:8000"
+* `-u`: Specify the base URL the site will be served from - eg "http://localhost:8000" (long form: `url`)
