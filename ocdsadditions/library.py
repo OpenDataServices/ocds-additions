@@ -3,9 +3,11 @@ import glob
 import json
 import os
 import tempfile
+from collections import OrderedDict
 
 import dateutil.parser
 import ocdskit.combine  # type: ignore
+import ocdskit.upgrade  # type: ignore
 import ocdskit.util  # type: ignore
 import requests
 from flattentool import flatten, unflatten  # type: ignore
@@ -251,13 +253,9 @@ class Repository:
                 )
 
             # A record
-            generator = ocdskit.combine.merge(
-                [r.get_release_package() for r in releases],
-                return_package=True,
+            contracting_process.write_record_package(
+                os.path.join(ocid_directory, "record.json")
             )
-            data = next(generator)
-            with open(os.path.join(ocid_directory, "record.json"), "w") as fp:
-                json.dump(data, fp, indent=4)
 
 
 class ContractingProcess:
@@ -392,6 +390,28 @@ class ContractingProcess:
             ):
                 extensions.extend(package_data["extensions"])
         return sorted(list(set(extensions)))
+
+    def write_record_package(self, filename):
+
+        releases = [r.get_release_package() for r in self.list_releases()]
+
+        latest_version_releases: list = []
+        for release in releases:
+            if ocdskit.util.get_ocds_minor_version(release) == "1.0":
+                upgraded = ocdskit.upgrade.upgrade_10_11(
+                    json.loads(json.dumps(release), object_pairs_hook=OrderedDict)
+                )
+                latest_version_releases.append(json.loads(json.dumps(upgraded)))
+            else:
+                latest_version_releases.append(release)
+
+        generator = ocdskit.combine.merge(
+            latest_version_releases,
+            return_package=True,
+        )
+        data = next(generator)
+        with open(filename, "w") as fp:
+            json.dump(data, fp, indent=4)
 
 
 class Release:
