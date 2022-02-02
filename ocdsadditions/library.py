@@ -322,6 +322,7 @@ class ContractingProcess:
             "publisher": more_package_data.get("publisher", {}),
             "publicationPolicy": more_package_data.get("publicationPolicy", ""),
             "license": more_package_data.get("license", ""),
+            "extensions": self.get_extensions_used(),
         }
 
         release_data: dict = {
@@ -379,6 +380,16 @@ class ContractingProcess:
                 if data["id"] == release_id:
                     return Release(self, path.split("/")[-2])
         raise Exception("Release does not exist")
+
+    def get_extensions_used(self):
+        extensions = []
+        for release in self.list_releases():
+            package_data = release.get_package_data()
+            if "extensions" in package_data and isinstance(
+                package_data["extensions"], list
+            ):
+                extensions.extend(package_data["extensions"])
+        return sorted(list(set(extensions)))
 
 
 class Release:
@@ -474,3 +485,11 @@ class Release:
         # Remove temp file
         os.unlink(rel_package_temp_file[1])
         os.unlink(schema_temp_file[1])
+
+    def get_release_data(self) -> dict:
+        with (open(os.path.join(self.release_directory, "release.json"))) as fp:
+            return json.load(fp)
+
+    def get_package_data(self) -> dict:
+        with (open(os.path.join(self.release_directory, "package.json"))) as fp:
+            return json.load(fp)
