@@ -21,9 +21,10 @@
         <ul>
             {% for release in releases %}
                 <li>
-                    <a href="{{ url_without_trailing_slash }}/contracting_process/{{ ocid }}/release/{{ release.directory_name }}/release_package.json">{{ release.directory_name }}</a>
+                    {#  TODO shouldn't be using private variables! #}
+                    <a href="{{ url_without_trailing_slash }}/contracting_process/{{ ocid }}/release/{{ release._directory_name }}/release_package.json">{{ release._directory_name }}</a>
                     {% if url_without_trailing_slash %}
-                        {% set drturl = url_without_trailing_slash + "/contracting_process/" + ocid + "/release/"+ release.directory_name + "/release_package.json"  %}
+                        {% set drturl = url_without_trailing_slash + "/contracting_process/" + ocid + "/release/"+ release._directory_name + "/release_package.json"  %}
                         [ <a href="https://standard.open-contracting.org/review/?source_url={{ drturl|urlencode }}" rel="nofollow">Review in Data Review Tool</a> ]
                     {% endif %}
                 </li>

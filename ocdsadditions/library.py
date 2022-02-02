@@ -48,7 +48,7 @@ def init_repository(directory: str):
 
 class Repository:
     def __init__(self, directory_name: str):
-        self.directory_name = directory_name
+        self._directory_name = directory_name
         if not os.path.isdir(directory_name):
             raise Exception("Directory does not exist")
         if not os.path.isfile(os.path.join(directory_name, "ocdsadditions.json")):
@@ -60,7 +60,7 @@ class Repository:
 
         # TODO: Can we assume OCIDS are always valid directory names?
         ocid_directory = os.path.join(
-            self.directory_name, "contracting_processes", ocid
+            self._directory_name, "contracting_processes", ocid
         )
         if not os.path.isdir(ocid_directory):
             os.makedirs(ocid_directory)
@@ -96,7 +96,7 @@ class Repository:
         out: list = []
         for path in glob.glob(
             os.path.join(
-                self.directory_name,
+                self._directory_name,
                 "contracting_processes",
                 "*",
                 "ocdsadditions_contracting_process.json",
@@ -144,17 +144,17 @@ class Repository:
         os.unlink(output_temp_file[1])
 
     def get_config_package_data(self):
-        with (open(os.path.join(self.directory_name, "ocdsadditions.json"))) as fp:
+        with (open(os.path.join(self._directory_name, "ocdsadditions.json"))) as fp:
             data = json.load(fp)
         return data.get("config", {}).get("package", {})
 
     def get_config_party_data(self):
-        with (open(os.path.join(self.directory_name, "ocdsadditions.json"))) as fp:
+        with (open(os.path.join(self._directory_name, "ocdsadditions.json"))) as fp:
             data = json.load(fp)
         return data.get("config", {}).get("party", {})
 
     def get_config_add_party_to_our_releases_with_party_id(self):
-        with (open(os.path.join(self.directory_name, "ocdsadditions.json"))) as fp:
+        with (open(os.path.join(self._directory_name, "ocdsadditions.json"))) as fp:
             data = json.load(fp)
         return data.get("config", {}).get(
             "add_party_to_our_releases_with_party_id", None
@@ -220,7 +220,7 @@ class Repository:
                         + "/contracting_process/"
                         + ocid
                         + "/release/"
-                        + r.directory_name
+                        + r._directory_name
                         + "/release_package.json",
                     }
                     for r in releases
@@ -242,7 +242,7 @@ class Repository:
             # Individual Releases
             for release in releases:
                 release_directory = os.path.join(
-                    ocid_directory, "release", release.directory_name
+                    ocid_directory, "release", release._directory_name
                 )
                 os.makedirs(release_directory, exist_ok=True)
                 data = {}
@@ -260,16 +260,16 @@ class Repository:
 
 class ContractingProcess:
     def __init__(self, repository: Repository, ocid: str):
-        self.repository = repository
-        self.ocid = ocid
+        self._repository = repository
+        self._ocid = ocid
 
-        self.ocid_directory = os.path.join(
-            repository.directory_name, "contracting_processes", ocid
+        self._ocid_directory = os.path.join(
+            repository._directory_name, "contracting_processes", ocid
         )
-        if not os.path.isdir(self.ocid_directory):
+        if not os.path.isdir(self._ocid_directory):
             raise Exception("OCID does not exist")
         if not os.path.isfile(
-            os.path.join(self.ocid_directory, "ocdsadditions_contracting_process.json")
+            os.path.join(self._ocid_directory, "ocdsadditions_contracting_process.json")
         ):
             raise Exception("OCID file not found")
 
@@ -277,7 +277,7 @@ class ContractingProcess:
         datetime_object = dateutil.parser.parse(release["date"])
         # TODO: Can we assume IDS are always valid directory names?
         dir_name = datetime_object.strftime("%Y-%m-%d-%H-%M-%S") + "-" + release["id"]
-        directory = os.path.join(self.ocid_directory, "releases", dir_name)
+        directory = os.path.join(self._ocid_directory, "releases", dir_name)
         if not os.path.isdir(directory):
             os.makedirs(directory)
 
@@ -302,7 +302,7 @@ class ContractingProcess:
         datetime_object = datetime.datetime.now(datetime.timezone.utc)
         # TODO: Can we assume IDS are always valid directory names?
         dir_name = datetime_object.strftime("%Y-%m-%d-%H-%M-%S") + "-" + release_id
-        directory = os.path.join(self.ocid_directory, "releases", dir_name)
+        directory = os.path.join(self._ocid_directory, "releases", dir_name)
         if not os.path.isdir(directory):
             os.makedirs(directory)
 
@@ -313,7 +313,7 @@ class ContractingProcess:
 
         # TODO add extensions info from existing releases
         # TODO add uri
-        more_package_data = self.repository.get_config_package_data()
+        more_package_data = self._repository.get_config_package_data()
         package_data: dict = {
             "version": LATEST_OCDS_SCHEMA_VERSION,
             "publishedDate": datetime_object.isoformat(),
@@ -324,13 +324,13 @@ class ContractingProcess:
         }
 
         release_data: dict = {
-            "ocid": self.ocid,
+            "ocid": self._ocid,
             "id": release_id,
             "date": datetime_object.isoformat(),
         }
-        config_party_data = self.repository.get_config_party_data()
+        config_party_data = self._repository.get_config_party_data()
         config_add_party_to_our_releases_with_party_id = (
-            self.repository.get_config_add_party_to_our_releases_with_party_id()
+            self._repository.get_config_add_party_to_our_releases_with_party_id()
         )
         if config_add_party_to_our_releases_with_party_id and config_party_data:
             config_party_data["id"] = config_add_party_to_our_releases_with_party_id
@@ -351,7 +351,7 @@ class ContractingProcess:
         out: list = []
         paths = glob.glob(
             os.path.join(
-                self.ocid_directory, "releases", "*", "ocdsadditions_release.json"
+                self._ocid_directory, "releases", "*", "ocdsadditions_release.json"
             )
         )
         path_bits = [p.split("/")[-2] for p in paths]
@@ -363,7 +363,7 @@ class ContractingProcess:
     def does_release_id_exist(self, release_id) -> bool:
         for path in glob.glob(
             os.path.join(
-                self.ocid_directory, "releases", "*", "ocdsadditions_release.json"
+                self._ocid_directory, "releases", "*", "ocdsadditions_release.json"
             )
         ):
             with (open(path)) as fp:
@@ -375,7 +375,7 @@ class ContractingProcess:
     def get_release(self, release_id: str):
         for path in glob.glob(
             os.path.join(
-                self.ocid_directory, "releases", "*", "ocdsadditions_release.json"
+                self._ocid_directory, "releases", "*", "ocdsadditions_release.json"
             )
         ):
             with (open(path)) as fp:
@@ -419,36 +419,36 @@ class ContractingProcess:
 
 class Release:
     def __init__(self, contracting_process: ContractingProcess, directory_name: str):
-        self.contracting_process = contracting_process
-        self.directory_name = directory_name
+        self._contracting_process = contracting_process
+        self._directory_name = directory_name
 
-        self.release_directory = os.path.join(
-            contracting_process.ocid_directory, "releases", directory_name
+        self._release_directory = os.path.join(
+            contracting_process._ocid_directory, "releases", directory_name
         )
-        if not os.path.isdir(self.release_directory):
+        if not os.path.isdir(self._release_directory):
             raise Exception("Release does not exist")
         if not os.path.isfile(
-            os.path.join(self.release_directory, "ocdsadditions_release.json")
+            os.path.join(self._release_directory, "ocdsadditions_release.json")
         ):
             raise Exception("Release file not found")
 
     def get_id(self):
-        with (open(os.path.join(self.release_directory, "release.json"))) as fp:
+        with (open(os.path.join(self._release_directory, "release.json"))) as fp:
             data: dict = json.load(fp)
         return data.get("id")
 
     def set_release_data(self, release_data: dict):
-        with open(os.path.join(self.release_directory, "release.json"), "w") as fp:
+        with open(os.path.join(self._release_directory, "release.json"), "w") as fp:
             json.dump(release_data, fp, indent=4)
 
     def get_release_package(self) -> dict:
         with (
-            open(os.path.join(self.release_directory, "ocdsadditions_release.json"))
+            open(os.path.join(self._release_directory, "ocdsadditions_release.json"))
         ) as fp:
             meta = json.load(fp)
-        with (open(os.path.join(self.release_directory, "package.json"))) as fp:
+        with (open(os.path.join(self._release_directory, "package.json"))) as fp:
             data = json.load(fp)
-        with (open(os.path.join(self.release_directory, "release.json"))) as fp:
+        with (open(os.path.join(self._release_directory, "release.json"))) as fp:
             data["releases"] = [json.load(fp)]
         if meta.get("url"):
             # This indicates the releases was "stolen" from elswehere. We should add a "rel" link.
@@ -477,7 +477,7 @@ class Release:
             raise Exception("Unknown output type")
 
         # Make Schema
-        with (open(os.path.join(self.release_directory, "package.json"))) as fp:
+        with (open(os.path.join(self._release_directory, "package.json"))) as fp:
             package_data = json.load(fp)
         builder = ProfileBuilder(
             get_ocds_patch_tag(package_data.get("version", "1.0")),
@@ -512,14 +512,14 @@ class Release:
         os.unlink(schema_temp_file[1])
 
     def get_release_data_filename(self) -> str:
-        return os.path.join(self.release_directory, "release.json")
+        return os.path.join(self._release_directory, "release.json")
 
     def get_release_data(self) -> dict:
         with open(self.get_release_data_filename()) as fp:
             return json.load(fp)
 
     def get_package_data_filename(self) -> str:
-        return os.path.join(self.release_directory, "package.json")
+        return os.path.join(self._release_directory, "package.json")
 
     def get_package_data(self) -> dict:
         with open(self.get_package_data_filename()) as fp:
