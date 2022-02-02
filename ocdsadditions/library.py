@@ -146,6 +146,18 @@ class Repository:
             data = json.load(fp)
         return data.get("config", {}).get("package", {})
 
+    def get_config_party_data(self):
+        with (open(os.path.join(self.directory_name, "ocdsadditions.json"))) as fp:
+            data = json.load(fp)
+        return data.get("config", {}).get("party", {})
+
+    def get_config_add_party_to_our_releases_with_party_id(self):
+        with (open(os.path.join(self.directory_name, "ocdsadditions.json"))) as fp:
+            data = json.load(fp)
+        return data.get("config", {}).get(
+            "add_party_to_our_releases_with_party_id", None
+        )
+
     def build_site(self, output_directory: str, url: str = ""):
         url_without_trailing_slash = url[:-1] if url.endswith("/") else url
         os.makedirs(output_directory, exist_ok=True)
@@ -172,6 +184,7 @@ class Repository:
                 for ocid in ocids
             ],
             "package": self.get_config_package_data(),
+            "party": self.get_config_party_data(),
         }
         with open(os.path.join(output_directory, "api.json"), "w") as fp:
             json.dump(data, fp, indent=4)
@@ -182,6 +195,7 @@ class Repository:
                     ocids=ocids,
                     url_without_trailing_slash=url_without_trailing_slash,
                     config_package=self.get_config_package_data(),
+                    config_party=self.get_config_party_data(),
                 )
             )
 
@@ -315,6 +329,13 @@ class ContractingProcess:
             "id": release_id,
             "date": datetime_object.isoformat(),
         }
+        config_party_data = self.repository.get_config_party_data()
+        config_add_party_to_our_releases_with_party_id = (
+            self.repository.get_config_add_party_to_our_releases_with_party_id()
+        )
+        if config_add_party_to_our_releases_with_party_id and config_party_data:
+            config_party_data["id"] = config_add_party_to_our_releases_with_party_id
+            release_data["parties"] = [config_party_data]
 
         with open(os.path.join(directory, "ocdsadditions_release.json"), "w") as fp:
             json.dump(data, fp, indent=4)
