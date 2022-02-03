@@ -12,7 +12,7 @@ setup(
         "Source": "https://github.com/OpenDataServices/ocds-additions",
     },
     description="",
-    license="TODO",
+    license="MIT",
     packages=find_packages(exclude=["tests", "tests.*"]),
     package_data={
         "ocdsadditions": [
