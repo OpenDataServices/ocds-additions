@@ -22,6 +22,7 @@ setup(
         ]
     },
     include_package_data=True,
+    python_requires=">=3.7",
     install_requires=[
         "ocdskit>=1.0.3,<1.1",
         "ocdsextensionregistry>=0.1.10,<0.2",
