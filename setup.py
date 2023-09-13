@@ -33,7 +33,15 @@ setup(
         "flattentool>0.17",
     ],
     extras_require={
-        "dev": ["pytest", "black", "isort", "flake8", "mypy"],
+        "dev": [
+            "pytest",
+            "black==22.12.0",
+            "isort",
+            "flake8",
+            "mypy",
+            "sphinx",
+            "sphinx_rtd_theme",
+        ],
     },
     classifiers=[],
     entry_points={
