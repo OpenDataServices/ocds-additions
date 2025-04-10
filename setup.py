@@ -40,7 +40,7 @@ setup(
             "flake8",
             "mypy",
             "sphinx",
-            "sphinx_rtd_theme",
+            "odsc-default-sphinx-theme",
         ],
     },
     classifiers=[],

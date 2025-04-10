@@ -2,8 +2,6 @@ project = "OCDS Additions"
 
 master_doc = "index"
 
-extensions = [
-    "sphinx_rtd_theme",
-]
+extensions = []
 
-html_theme = "sphinx_rtd_theme"
+html_theme = "odsc_default_sphinx_theme"
